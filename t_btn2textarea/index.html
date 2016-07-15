@@ -1,0 +1,99 @@
+
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<title>"Set Button Element ID to textarea on caret" Test:jQuery</title>
+<script type="text/javascript" language="JavaScript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script>
+;(function($){
+    $(document).ready(function(){
+
+        setId2TextareaCaret();
+        function setId2TextareaCaret(){
+            $('.jq-btn-elem').click(function(){
+                var obj = $('#jq-textarea');
+                //挿入する文字列
+                var strInsert = '['+$(this).attr('id')+']';
+                //現在のテキストエリアの文字列
+                var ua = navigator.userAgent;
+                if(ua.match(/MSIE/)) {//IE10まで
+                    obj.get(0).focus();
+                    var r = document.selection.createRange();
+                    r.text = strInsert;
+                    r.select();
+                } else {
+                    var strOriginal = obj.val();
+                    //現在のカーソル位置
+                    var posCursole = obj.get(0).selectionStart;
+                    //カーソル位置より左の文字列
+                    var leftPart = strOriginal.substr(0, posCursole);
+                    //カーソル位置より右の文字列
+                    var rightPart = strOriginal.substr(posCursole, strOriginal.length);
+
+                    //文字列を結合して、テキストエリアに出力
+                    obj.val(leftPart + strInsert + rightPart);
+                }
+            });
+        }
+
+    });//end redy
+})(jQuery);
+</script>
+<style>
+    ul{
+        list-style-type:none;
+        list-style-position: outside;
+    }
+    ul#choiceSchemeElms{
+        margin-left: -2.5em;
+    }
+    ul#choiceSchemeElms > li{
+        float:left;
+    }
+    .btnE {
+        border-radius: 14px;
+        padding: 2px 1em;
+        border: 1px solid rgb(230,230,230);
+        box-shadow: inset 0 0 2px rgba(0,0,0,0.8);
+        background: rgb(214,214,214);
+        background: -moz-linear-gradient(top, rgba(214,214,214,1) 0%, rgba(255,255,255,1) 13%, rgba(242,242,242,1) 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(214,214,214,1)), color-stop(13%,rgba(255,255,255,1)), color-stop(100%,rgba(242,242,242,1)));
+        background: -webkit-linear-gradient(top, rgba(214,214,214,1) 0%,rgba(255,255,255,1) 13%,rgba(242,242,242,1) 100%);
+        background: -o-linear-gradient(top, rgba(214,214,214,1) 0%,rgba(255,255,255,1) 13%,rgba(242,242,242,1) 100%);
+        background: -ms-linear-gradient(top, rgba(214,214,214,1) 0%,rgba(255,255,255,1) 13%,rgba(242,242,242,1) 100%);
+        background: linear-gradient(top, rgba(214,214,214,1) 0%,rgba(255,255,255,1) 13%,rgba(242,242,242,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#dddddd',GradientType=0 );
+        cursor: pointer;
+    }
+
+</style>
+</head>
+
+<body>
+<h1>jQuery:"Set Button Element ID to textarea on caret" Test</h1>
+<h2>テキストエリアのキャレット位置にボタンのIDを配置したい</h2>
+<hr>
+<div>
+    <section>
+        <ul>
+            <li>
+                <ul id="choiceSchemeElms">
+                    <li><span id="btn1" class="btnE jq-btn-elem">ボタン１</span></li>
+                    <li><span id="btn2" class="btnE jq-btn-elem">ボタン２</span></li>
+                    <li><span id="btn3" class="btnE jq-btn-elem">ボタン３</span></li>
+                    <li><span id="btn4" class="btnE jq-btn-elem">ボタン４</span></li>
+                    <li><span id="btn5" class="btnE jq-btn-elem">ボタン５</span></li>
+                    <li><span id="btn6" class="btnE jq-btn-elem">ボタン６</span></li>
+                </ul>
+            </li>
+            <li style="clear: both;">
+                <textarea id="jq-textarea" style="margin: 0px; width: 486px; height: 70px;">[btn1]&lt;tag name="base"&gt; [btn4] &lt;/tag&gt; [btn2]</textarea>
+            </li>
+        </ul>
+    </section>
+</div>
+
+</body>
+
+</html>
