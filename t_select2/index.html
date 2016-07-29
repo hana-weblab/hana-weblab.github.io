@@ -1,0 +1,140 @@
+<?php
+$baseUrl = $_SERVER["REQUEST_URI"];
+?>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<title>"Loading remote data" Test:jQuery Plug-in:select2</title>
+<link href="<?php echo $baseUrl;?>select2/select2.css" rel="stylesheet" />
+<script type="text/javascript" language="JavaScript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="<?php echo $baseUrl;?>select2/select2.min.js"></script>
+<script>
+;(function($){
+    $(document).ready(function(){
+        //既存のselectタグに対し追加
+        $('#selectTest').select2();
+        
+        //入力情報によって、選択肢を動的に取得する
+        setSelect2('userList','');
+        setSelect2('userList2','99');
+
+        function setSelect2(_targetID,_setVal){
+            //初期表示指定値があれば値をセット
+            var setVal = '';
+            if(_setVal){
+                setVal = _setVal;
+                $('#'+_targetID).val(_setVal);
+            }
+            //複数選択は仮にfalse。変更可
+            var multipleFlg = false;
+
+            var sendUrl = "<?php echo $baseUrl;?>send.php";
+            //select2()のオプション
+            var optionArray = {
+                allowClear: true,
+                minimumInputLength: 1,//1文字入力されたら検索
+                multiple : multipleFlg,//複数選択可否
+                cache:true,
+                ajax: {//通常：入力文字列をもとに選択肢取得
+                  url: sendUrl,
+                  dataType: 'json',
+                  data: function (_term) {//PHP側で取得に必要な引数をセット
+                      return {
+                          inputData: _term, //入力情報
+                          setVal:''
+                      };
+                  },
+                  results: function (_data) {
+                      //_dataは、
+                      //[{ id:'1', text:'てすと' },{ id:'2', text:'てすと２' }。。。]の形で
+                      //返すようにする。
+                      //異なる場合はココで整形も可
+                      return { results:_data };
+                  },
+                  cache:true
+               }
+            };
+            //オプションの追加
+            //--プレースホルダーのセット ＊trueの場合プレースホルダーは利用できない(？)
+            if(multipleFlg===false){
+                optionArray.placeholder = 'プレースホルダー';
+            }
+            //--初期表示の値の指定があればその値のみ取得し、初期表示としてセット
+            if(setVal!==""){
+                //初期表示設定：単にデフォルト表示ならココで単純に指定も可
+                //今回は再表示時、cookie値を表示したかったのでajaxで取得
+                optionArray.initSelection = function (ele,callback) {
+                    $.ajax({
+                        url: sendUrl,
+                        dataType: 'json',
+                        data: {
+                            inputData: '',
+                            setVal:setVal//初期表示の値
+                        },
+                        success: function (data) {
+                            if(multipleFlg===true){//multipleの場合
+                                callback(data);
+                            }else{
+                                callback(data[0]);
+                            }
+                        }
+                    });
+                    /* 本来上のやり方でいいんだけど。。。
+                     * 某案件環境の場合callbackが働かなくなっていた。
+                     * で、苦肉の策として同期通信にし、以下のように値を戻すことで動いたのでメモ
+                    var getInitSelect = $.ajax({
+                        //type:'post',
+                        url: sendUrl,
+                        dataType: 'json',
+                        async: false,//同期通信
+                        data: {
+                            inputData: '', //入力情報
+                            //getType:_targetID, //取得項目情報
+                            setVal:setVal
+                        }
+                    }).responseText;
+                    var getInitSelectObj=$.parseJSON(getInitSelect);
+                    if(multipleFlg===true){//multipleの場合
+                        return getInitSelectObj;
+                    }else{
+                       return getInitSelectObj[0];
+                    }
+                    */
+                };
+            }
+            //上のオプションでselect2セット
+            $("#"+_targetID).select2(optionArray);
+
+        };//end setSelect2
+    });//end redy
+})(jQuery);
+</script>
+
+<body>
+<h1>jQuery Plug-in:select2 "Loading remote data" Test</h1>
+<h2>for Version：3.4.5</h2>
+<hr>
+<div>
+    <p>選択肢は固定：「test、test2」</p>
+    <select id="selectTest" style="width:200px">
+        <option value="1">test</option>
+        <option value="2">test2</option>
+    </select>
+</div>
+<hr>
+<div>
+    <p>選択肢は入力値をもとにajaxで取得する</p>
+    <p>選択肢は入力値が。。。<br>
+        半角英数字で始まる場合は、「いち、に」、<br>
+        それ以外の場合は、「佐藤」「鈴木」
+    </p>
+    <p>ex.)プレースホルダー：placeholder</p>
+    <input type="hidden" id="userList" style="width:200px" />
+    <p>ex.)初期表示の指定：initSelection</p>
+    <input type="hidden" id="userList2" style="width:200px" />
+</div>
+
+</body>
+
+</html>

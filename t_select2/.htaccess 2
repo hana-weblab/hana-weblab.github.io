@@ -1,0 +1,4 @@
+
+php_flag log_errors  'On'
+php_value error_log "../logs/php_error.log"
+php_flag short_open_tag 'On'
